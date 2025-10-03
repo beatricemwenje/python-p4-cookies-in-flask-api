@@ -1,16 +1,17 @@
-from flask import Flask, request, session, jsonify, make_response
+from flask import Flask, session, jsonify, make_response, request
 
 app = Flask(__name__)
-app.json.compact = False
 
-app.secret_key = b'?w\x85Z\x08Q\xbdO\xb8\xa9\xb65Kj\xa9_'
+# Secret key is required for session encryption
+app.secret_key = 'supersecretkey123'
 
 @app.route('/sessions/<string:key>', methods=['GET'])
 def show_session(key):
-
+    # Set default session values if they don't exist
     session["hello"] = session.get("hello") or "World"
     session["goodnight"] = session.get("goodnight") or "Moon"
 
+    # Prepare response
     response = make_response(jsonify({
         'session': {
             'session_key': key,
@@ -21,10 +22,10 @@ def show_session(key):
             for cookie in request.cookies],
     }), 200)
 
+    # Set a new cookie
     response.set_cookie('mouse', 'Cookie')
 
     return response
 
-if __name__ == '__main__':
-    app.run(port=5555)
-    
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5555, debug=True)
